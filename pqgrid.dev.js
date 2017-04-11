@@ -6,6 +6,13 @@
  * http://paramquery.com/license
  *
  */
+/*modified by kttii on 4/11/2017
+ * support for lastColumn as a user specified column index
+ *  in addition to 'none', 'auto' and 'fullScroll'
+ *     updates were made to the following functions:
+ *	_pRefreshColumn.refreshColumnWidths = function ()
+ *	fn._getLastVisibleColIndx = function ()
+*/
 (function($) {
 	var pq = $.paramquery = $.paramquery || {};
 	$.paramquery.pqgrid = $.paramquery.pqgrid || {};
@@ -7162,17 +7169,23 @@
 		}
 		return null
 	};
-	fn._getLastVisibleColIndx = function() {
-		var CM = this.colModel,
-			CMLength = CM.length;
-		for (var i = CMLength - 1; i >= 0; i--) {
-			var hidden = CM[i].hidden;
-			if (!hidden) {
-				return i
-			}
-		}
-		return null
-	};
+	fn._getLastVisibleColIndx = function () {
+        var CM = this.colModel,
+			CMLength = CM.length,
+            lC = this.options.scrollModel.lastColumn; //kttii
+
+        if (!isNaN(parseFloat(lC)) && isFinite(lC)) { //kttii
+            return lC
+        } else {
+            for (var i = CMLength - 1; i >= 0; i--) {
+                var hidden = CM[i].hidden;
+                if (!hidden) {
+                    return i
+                }
+            }
+        }
+        return null
+    };
 	fn.getTotalVisibleColumns = function() {
 		var CM = this.colModel,
 			CMLength = CM.length,
@@ -8080,7 +8093,7 @@
 			if (autoFit) {
 				this.autoFit()
 			}
-			if (SMLastColumn == "auto") {
+			if (SMLastColumn == "auto" ||  (!isNaN(parseFloat(SMLastColumn)) && isFinite(SMLastColumn))) { //kttii
 				this.autoLastColumn()
 			}
 		}
